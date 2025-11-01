@@ -1,0 +1,22 @@
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+
+  worker:
+    build: .
+    depends_on:
+      - redis
+    command: rq worker --url redis://redis:6379/0 -P /app/app default
+    environment:
+      - REDIS_URL=redis://redis:6379/0
